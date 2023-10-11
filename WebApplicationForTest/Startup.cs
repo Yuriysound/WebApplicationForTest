@@ -26,7 +26,7 @@ namespace WebApplicationForTest
         {
             services.AddRazorPages();
 
-            services.AddDbContext<YourDbContext>(options =>
+            services.AddDbContext<AppDBContexts>(options =>
             options.UseInMemoryDatabase("InMemoryDb"));
 
             services.AddSingleton<AuthService>();

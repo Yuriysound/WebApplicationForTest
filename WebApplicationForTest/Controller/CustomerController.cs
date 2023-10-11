@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using WebApplicationForTest.Model;
 
 namespace WebApplicationForTest.Controller
@@ -12,11 +13,18 @@ namespace WebApplicationForTest.Controller
     [Authorize]
     public class CustomerController : ControllerBase
     {
+        private readonly AppDBContexts _appDBContexts;
+
+        public CustomerController(AppDBContexts appDBContexts)
+        {
+            _appDBContexts = appDBContexts;
+        }
+
         private readonly List<Customer> _customers = new List<Customer>
-    {
+        {
         new Customer { CustomerNumber = 1, Name = "Customer A" },
         new Customer { CustomerNumber = 2, Name = "Customer B" }
-    };
+        };
 
         // GET: api/Customer
         [HttpGet]
@@ -29,7 +37,7 @@ namespace WebApplicationForTest.Controller
         [HttpGet("{id}")]
         public ActionResult<Customer> GetCustomer(int id)
         {
-            var customer = _customers.Find(c => c.CustomerNumber == id);
+            var customer = _appDBContexts.Customers.FirstOrDefault(c => c.CustomerNumber == id);
             if (customer == null)
             {
                 return NotFound();
@@ -49,7 +57,7 @@ namespace WebApplicationForTest.Controller
         [HttpPut("{id}")]
         public IActionResult PutCustomer(int id, Customer customer)
         {
-            var existingCustomer = _customers.Find(c => c.CustomerNumber == id);
+            var existingCustomer = _appDBContexts.Customers.FirstOrDefault(c => c.CustomerNumber == id);
             if (existingCustomer == null)
             {
                 return NotFound();
@@ -63,13 +71,13 @@ namespace WebApplicationForTest.Controller
         [HttpDelete("{id}")]
         public IActionResult DeleteCustomer(int id)
         {
-            var customer = _customers.Find(c => c.CustomerNumber == id);
+            var customer = _appDBContexts.Customers.FirstOrDefault(c => c.CustomerNumber == id);
             if (customer == null)
             {
                 return NotFound();
             }
 
-            _customers.Remove(customer);
+            _appDBContexts.Customers.Remove(customer);
             return NoContent();
         }
     }

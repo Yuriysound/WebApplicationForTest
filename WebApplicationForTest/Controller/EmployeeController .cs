@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplicationForTest.Model;
 
@@ -9,13 +10,21 @@ namespace WebApplicationForTest.Controller
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class EmployeeController : ControllerBase
     {
+        private readonly AppDBContexts _appDBContexts;
+
+        public EmployeeController(AppDBContexts appDBContexts)
+        {
+            _appDBContexts = appDBContexts;
+        }
+
         private static List<Employee> _employees = new List<Employee>
-    {
+        {
         new Employee { Email = "employee1@example.com", FirstName = "John", LastName = "Doe", PhoneNumber = "111-222-3333" },
         new Employee { Email = "employee2@example.com", FirstName = "Jane", LastName = "Smith", PhoneNumber = "444-555-6666" }
-    };
+        };
 
         // GET: api/Employee
         [HttpGet]
@@ -28,7 +37,7 @@ namespace WebApplicationForTest.Controller
         [HttpGet("{email}")]
         public ActionResult<Employee> GetEmployee(string email)
         {
-            var employee = _employees.Find(e => e.Email == email);
+            var employee = _appDBContexts.Employee.FirstOrDefault(e => e.Email == email);
             if (employee == null)
             {
                 return NotFound();
@@ -53,7 +62,7 @@ namespace WebApplicationForTest.Controller
         [HttpPut("{email}")]
         public IActionResult PutEmployee(string email, Employee employee)
         {
-            var existingEmployee = _employees.Find(e => e.Email == email);
+            var existingEmployee = _appDBContexts.Employee.FirstOrDefault(e => e.Email == email);
             if (existingEmployee == null)
             {
                 return NotFound();
@@ -71,13 +80,13 @@ namespace WebApplicationForTest.Controller
         [HttpDelete("{email}")]
         public IActionResult DeleteEmployee(string email)
         {
-            var employee = _employees.Find(e => e.Email == email);
+            var employee = _appDBContexts.Employee.FirstOrDefault(e => e.Email == email);
             if (employee == null)
             {
                 return NotFound();
             }
 
-            _employees.Remove(employee);
+            _appDBContexts.Employee.Remove(employee);
             return NoContent();
         }
     }
